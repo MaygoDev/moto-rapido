@@ -1,0 +1,10 @@
+body {
+    margin: 0;
+    background-image: url("../img/background.jpg");
+    background-size: cover;
+}
+
+.moto {
+    width: 10%;
+    margin: 10px;
+}
