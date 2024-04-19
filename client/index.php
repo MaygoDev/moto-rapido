@@ -1,9 +1,28 @@
 <?php
+ob_start();
+session_start();
+
+if (isset($_SESSION['name'])) {
+    header('Location: game.php');
+    exit();
+}
 
 if (isset($_POST['name'])) {
     $name = htmlspecialchars($_POST['name']);
 
+    $redis = new Redis();
+    $redis->connect('localhost');
 
+    if ($redis->hLen("players") >= $redis->lLen("colors")){
+        // The game is full
+        $error = "La partie est pleine.";
+    }else{
+        $redis->hSet("players", $name, $name);
+        $redis->zAdd('players:leaderboard', $name, 0);
+        $_SESSION['name'] = $name;
+        header('Location: game.php');
+        exit();
+    }
 }
 
 ?>
