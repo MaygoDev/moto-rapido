@@ -26,6 +26,7 @@ def player_join(json_message):
 async def message(websocket):
     async for message in websocket:
         json_message = json.loads(message)
+        print(json_message)
 
         if json_message["type"] == "join":
             await websocket.send(player_join(json_message))
@@ -40,4 +41,5 @@ async def main(message):
 
 if __name__ == "__main__":
     cache.connect()
+
     asyncio.run(main(message))
