@@ -13,13 +13,21 @@ if (isset($_POST['name'])) {
     $redis = new Redis();
     $redis->connect('localhost');
 
-    if ($redis->hLen("players") >= $redis->lLen("colors")){
+    if ($redis->hLen("players") >= $redis->lLen("colors")) {
         // The game is full
         $error = "La partie est pleine.";
-    }else{
-        $redis->hSet("players", $name, $name);
-        $redis->zAdd('players:leaderboard', $name, 0);
-        $_SESSION['name'] = $name;
+        $redis->close();
+    } else if ($redis->hExists("players", $name)) { // A player with this name already exists
+        $error = "Ce pseudo est déjà utilisé.";
+        $redis->close();
+    } else { // Can connect to the game
+        // Gets a random color and keep it in the list.
+        $color = $redis->lIndex("colors", rand(0, $redis->lLen("colors") - 1));
+
+        $redis->hSet("players", $name, $color);
+        $redis->zAdd('players:leaderboard', 0, $name);
+        $redis->close();
+        $_SESSION["name"] = $name;
         header('Location: game.php');
         exit();
     }
@@ -86,7 +94,6 @@ if (isset($_POST['name'])) {
 </div>
 
 
-<script src="assets/scripts/main.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
