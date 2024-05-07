@@ -1,7 +1,5 @@
-from typing import List
-
 import redis
-import player
+from typing import List, Dict
 
 r = None
 
@@ -15,17 +13,17 @@ def connect():
 def getColors() -> List[str]:
     return r.lrange('colors', 0, -1)
 
-def getPlayers() -> List[str]:
+def getPlayerColors() -> Dict[str, str]:
     return r.hgetall('players')
 
+def getPlayerScores() -> Dict[str, int]:
+    return r.zrange('players:leaderboard', 0, -1, withscores=True)
 
 def setColors(colors):
     r.delete('colors')
-    for color in colors:
-        r.rpush('colors', color)
+    r.rpush('colors', *colors)
 
-
-def addPlayer(player: player.Player):
-    r.hset('players', player.name, player.color)
-    r.zadd('players:leaderboard', {player.name: player.meters})
-    print(f"Added {player.name} to the game")
+def clearPlayers():
+    r.delete('players')
+    r.delete('players:leaderboard')
+    print("Cleared players")

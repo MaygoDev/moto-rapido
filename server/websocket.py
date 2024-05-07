@@ -5,7 +5,6 @@ import json
 
 from websockets.server import serve
 
-import player
 import cache as cache
 
 
@@ -37,9 +36,3 @@ async def message(websocket):
 async def main(message):
     async with serve(message, "localhost", 8765):
         await asyncio.get_running_loop().create_future()  # run forever
-
-
-if __name__ == "__main__":
-    cache.connect()
-
-    asyncio.run(main(message))
