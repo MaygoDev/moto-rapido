@@ -2,17 +2,13 @@ let websocket;
 
 const ipRegex = /^(?:25[0-5]|2[0-4]\d|[0-1]?\d{1,2})(?:\.(?:25[0-5]|2[0-4]\d|[0-1]?\d{1,2})){3}$/;
 
-document.getElementById("connect").addEventListener("click", function() {
-    const ip = document.getElementById("ip").value;
-    if (ip.match(ipRegex)) {
-        connect("ws://" + ip + ":8765");
-    }
-});
 
 const motoColors = {"orange": "ktm", "red": "honda", "blue": "yamaha", "green": "kawasaki", "yellow": "suzuki"};
 
 let color = null;
-let name = null;
+const elementName = document.getElementById("name").firstChild.data;
+const name = elementName.substring(0, elementName.length - 1);
+
 
 function onMessage(event) {
     console.log("Message received: " + event.data);
@@ -84,8 +80,27 @@ function forward() {
     websocket.send(JSON.stringify(message));
 }
 
+let position = 0; // Position initiale en pixels
+const step = 10; // Distance que la moto parcourt à chaque pression de la barre d'espace
+const moto = document.getElementById('player-'+name);
+
 document.addEventListener("keydown", function(event) {
-    if (event.key === " ") {
-        forward();
+    if (event.code === 'Space') {
+        const motoWidth = moto.offsetWidth;
+        const containerWidth = document.body.clientWidth;
+
+        // Calculer la nouvelle position
+        position += step;
+        moto.style.left = `${position}px`;
+
+        // Vérifier si la moto a atteint ou dépassé le bord droit de l'écran
+        if (position + motoWidth >= containerWidth) {
+            alert('Vous avez atteint le bord droit de l\'écran!');
+            // Réinitialiser la position ou faire autre chose si nécessaire
+        }
+
+        // Empêche la page de défiler lorsque l'espace est pressé
+        event.preventDefault();
+        // forward();
     }
 });

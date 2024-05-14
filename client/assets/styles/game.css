@@ -1,10 +1,20 @@
 body {
     margin: 0;
-    background-image: url("../img/background.jpg");
-    background-size: cover;
+    overflow: hidden; /* Empêche les barres de défilement */
+    background-color: #f0f0f0; /* Couleur de fond optionnelle */
+}
+
+.jeu {
+    position: relative;
+    width: 100vw; /* Utilise toute la largeur de la fenêtre */
+    height: 100vh; /* Utilise toute la hauteur de la fenêtre */
 }
 
 .moto {
-    width: 10%;
-    margin: 10px;
+    position: absolute;
+    /*bottom: 20px; !* Distance du bas de l'écran, ajustez si nécessaire *!*/
+    transition: left 0.2s; /* Transition douce pour le déplacement */
+    width: 100px; /* Largeur de l'image */
+    border: 1px solid black;
+    border-radius: 5px;
 }
