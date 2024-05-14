@@ -29,6 +29,9 @@ $redis->connect('localhost');
 //echo "</ol>";
 //echo "<a href='logout.php'>Se déconnecter</a>";
 //$redis->close();
+
+$step = 200;
+$playersOffset = -$step;
 ?>
 
 
@@ -54,13 +57,16 @@ $redis->connect('localhost');
           integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 </head>
 <body>
-<h1 id="name" class="text-center"><?= $_SESSION['name'] ?> <a href="logout.php" class="btn btn-danger">Se déconnecter</a></h1>
 
-<div>
+<h1 id="name" class="text-center"><?= $_SESSION['name'] ?> <a href="logout.php" class="btn btn-danger">Quitter la partie</a></h1>
+
+<div class="jeu">
+    <!--    5 MOTOS MAX à 90%-->
+
     <?php foreach ($redis->hGetAll("players") as $player => $color): ?>
-    <div class="text-center" id="player-<?= $player ?>">
-        <h1 id="player-name"><?= $player ?></h1>
-        <img id=player-moto" src="assets/img/motos/<?= $color ?>.png" alt="Moto <?= $color ?>">
+    <div class="text-center moto" id="player-<?= $player ?>" style="top: <?= $playersOffset += $step; ?>px">
+        <h3 id="player-name"><?= $player ?></h3>
+        <img id=player-moto" src="assets/img/motos/<?= $color ?>.png" alt="Moto <?= $color ?>" width="90px">
         <p id="score"><?= $redis->zScore("players:leaderboard", $player) ?></p>
     </div>
     <?php endforeach; ?>
