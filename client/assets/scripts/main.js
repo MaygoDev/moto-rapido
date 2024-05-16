@@ -9,30 +9,21 @@ let color = null;
 const elementName = document.getElementById("name").firstChild.data;
 const name = elementName.substring(0, elementName.length - 1);
 
+connect("ws://localhost:");
+let secret = null; // This secret is used with the server to avoid cheating.
 
 function onMessage(event) {
     console.log("Message received: " + event.data);
     const message = JSON.parse(event.data);
 
-    function onJoined(message) {
-        console.log("Joined as " + message.name + " with color " + message.color);
-        name = message.name;
-        color = message.color;
-
-        // Adjust window with frontend elements
-        document.getElementById("connection").style.display = "none";
-        document.getElementById("game").style.display = "block";
-    }
-
     switch (message.type) {
         case "joined":
-            onJoined(message);
-            break;
-        case "full": // TODO
+            secret = message.secret;
+
             break;
         case "left": // TODO
             break;
-        case "message": // TODO
+        case "forward": // TODO
             break;
     }
 }
@@ -43,7 +34,7 @@ function onOpen(event) {
     // Send a message to the server
     const message = {
         type: "join",
-        "name": document.getElementById("name").value
+        "name": name
     };
     websocket.send(JSON.stringify(message));
 }
