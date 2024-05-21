@@ -33,6 +33,18 @@ def generateSecret():
     """
     return os.urandom(15).hex()
 
+
+def ready(json_message):
+    secret = json_message["secret"]
+
+    name = cache.getNameBySecret(secret)
+    if name is not None:
+        cache.addReady(name)
+        print(f"WEBSOCKET >> Player {name} is ready.")
+        return json.dumps({"type": "ready", "name": name})
+
+    return None
+
 def forward(json_message):
     secret = json_message["secret"]
 
@@ -44,24 +56,45 @@ def forward(json_message):
 
     return None
 
+
+def checkStart():
+    readyPlayers = cache.getReady()
+    players = len(cache.getPlayerColors())
+    if readyPlayers == players and players > 1:
+        print("WEBSOCKET >> All players are ready. Starting game.")
+        cache.clearReady()
+        return json.dumps({"type": "start"})
+
+
 async def message(websocket):
     playerSockets.add(websocket)
+    print(f"WEBSOCKET >> Player {websocket.remote_address} connected.")
     async for message in websocket:
         json_message = json.loads(message)
         print(f"WEBSOCKET >> Recieved message: {json_message} from {websocket.remote_address}")
 
         if json_message["type"] == "join":
             joined = player_join(json_message)
+            await websocket.send(json.dumps({"type": "joined", "secret": joined}))
             if joined is not None:
-                await websocket.send(json.dumps({"type": "joined", "secret": joined}))
                 await broadcast(json.dumps({"type": "playerJoined",
                                             "name": json_message["name"],
                                             "color": json_message["color"]}))
+
+        elif json_message["type"] == "ready":
+            readyState = ready(json_message)
+            if readyState is not None:
+                await broadcast(readyState)
+            start = checkStart()
+            if start is not None:
+                await broadcast(start)
 
         elif json_message["type"] == "forward":
             forwardMessage = forward(json_message)
             if forwardMessage is not None:
                 await broadcast(forwardMessage)
+    playerSockets.remove(websocket)
+    print(f"WEBSOCKET >> Player {websocket.remote_address} disconnected.")
 
 async def broadcast(message):
     for playerSocket in playerSockets:

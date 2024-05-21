@@ -2,11 +2,16 @@
 // Logout and disconnect from game
 session_start();
 
-if (isset($_SESSION['name'])) {
+$name = $_SESSION['name'];
+if (isset($name)) {
     $redis = new Redis();
     $redis->connect('localhost');
-    $redis->hDel("players", $_SESSION['name']);
-    $redis->zRem('players:leaderboard', $_SESSION['name']);
+
+    $redis->hDel("players", $name);
+    $redis->zRem('players:leaderboard', $name);
+    $redis->hDel("secrets", $name);
+    $redis->del("ready:" . $name);
+
     $redis->close();
 }
 

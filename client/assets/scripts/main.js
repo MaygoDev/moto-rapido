@@ -28,6 +28,10 @@ function onMessage(event) {
             playerName = message.name;
             playerColor = message.color;
 
+            if (playerName === name) {
+                return;
+            }
+
             playerBox = document.createElement("div");
 
             playerBox.id = "player-"+playerName;
@@ -36,14 +40,26 @@ function onMessage(event) {
             const lastOffset = document.getElementById("game").lastElementChild.style.top;
             const newOffset = parseInt(lastOffset.substring(0, lastOffset.length - 2)) + 200;
 
-            playerBox.style="top: "+newOffset+"px; left: 0px;";
+            playerBox.style="top: "+newOffset+"px; left: 0px;"; // 0px because just joined
 
             playerMoto = document.createElement("img");
-            playerMoto.src = "assets/images/moto-"+playerColor+".png";
+            playerMoto.id = "player-moto";
+            playerMoto.src = "assets/img/motos/"+playerColor+".png";
             playerMoto.alt = "Moto "+playerColor;
-            playerMoto.width = 50;
-            playerMoto.height = 50;
+            // Set moto width to 90px
+            playerMoto.width = 90;
 
+            playerNameElement = document.createElement("h3");
+            playerNameElement.id = "player-name";
+            playerNameElement.innerText = playerName;
+
+            playerScore = document.createElement("p");
+            playerScore.id = "score";
+            playerScore.innerText = "Prêt ❌";
+
+            playerBox.appendChild(playerNameElement);
+            playerBox.appendChild(playerMoto);
+            playerBox.appendChild(playerScore);
 
             document.getElementById("game").appendChild(playerBox);
 
@@ -58,9 +74,13 @@ function onMessage(event) {
             playerBox.style.left = playerNewScore + "px";
 
             break;
-        case "left": // TODO
+        case "start":
+            started = true;
+            readyButton.style.display = "none";
             break;
-        case "forward": // TODO
+        case "ready":
+            playerName = message.name;
+            document.getElementById("player-"+playerName).children.namedItem("score").innerText = "Prêt ✔️";
             break;
     }
 }
@@ -99,8 +119,13 @@ function disconnect() {
 }
 
 // Game
+let started = false;
 
 function forward() {
+    if (!started) {
+        return;
+    }
+
     // send packet to websocket server
     const message = {
         type: "forward",
@@ -112,16 +137,50 @@ function forward() {
 let position = 0; // Position initiale en pixels
 const moto = document.getElementById('player-'+name);
 
+let pressed = false;
+
 document.addEventListener("keydown", function(event) {
-    if (event.code === 'Space') {
-        const motoWidth = moto.offsetWidth;
-        const containerWidth = document.body.clientWidth;
+    if (!pressed) {
+        if (event.code === 'Space') {
+            const motoWidth = moto.offsetWidth;
+            const containerWidth = document.body.clientWidth;
 
-        // Vérifier si la moto n'a pas atteint ou dépassé le bord droit de l'écran
-        if (position + motoWidth < containerWidth) {
-            forward();
+            // Vérifier si la moto n'a pas atteint ou dépassé le bord droit de l'écran
+            if (position + motoWidth < containerWidth) {
+                forward();
+            }
+
+            event.preventDefault();
+        }else if (event.code === 'KeyT') { // Turbo TODO
         }
-
-        event.preventDefault();
+        pressed = true;
     }
+});
+
+document.addEventListener("keyup", function(event) {
+    pressed = false;
+});
+
+// Ready
+
+const readyButton = document.getElementById("ready");
+
+let ready = false;
+
+readyButton.addEventListener("click", function() {
+    if (ready) {
+        return;
+    }
+
+    ready = true;
+
+    readyButton.className = "btn btn-success";
+    readyButton.innerText = "Prêt ✔️";
+
+    const message = {
+        type: "ready",
+        ready: ready,
+        secret: secret,
+    };
+    websocket.send(JSON.stringify(message));
 });

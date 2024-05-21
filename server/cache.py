@@ -32,10 +32,12 @@ def setColors(colors):
     print(f"REDIS>> Added {len(colors)} colors. ")
 
 
-def clearPlayers():
+def clearGame():
     r.delete('players')
     r.delete('players:leaderboard')
-    print("REDIS>> Cleared players.")
+    r.delete('secrets')
+    r.delete('players:ready')
+    print("REDIS>> Cleared game.")
 
 
 def hasSecret(name):
@@ -55,3 +57,14 @@ def getNameBySecret(secret):
         if playerSecret == secret:
             return name
     return None
+
+
+def addReady(name):
+    r.lpush('players:ready', name)
+
+def getReady():
+    return r.llen('players:ready')
+
+def clearReady():
+    r.delete('players:ready')
+    print("REDIS>> Cleared ready players.")
