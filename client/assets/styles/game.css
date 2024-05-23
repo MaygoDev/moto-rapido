@@ -18,3 +18,15 @@ body {
     border: 1px solid black;
     border-radius: 5px;
 }
+
+.countdown {
+    position: absolute;
+    top: 50%; /* Distance du haut de l'écran */
+    left: 50%; /* Distance de la gauche de l'écran */
+    font-size: 100px; /* Taille de la police */
+    color: white; /* Couleur du texte */
+    background-color: red; /* Couleur de fond */
+    padding: 5px; /* Marge intérieure */
+    border-radius: 5px; /* Coins arrondis */
+    display: none;
+}

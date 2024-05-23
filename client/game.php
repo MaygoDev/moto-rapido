@@ -66,10 +66,13 @@ $playersOffset = -$step;
 
         <?php foreach ($redis->hGetAll("players") as $player => $color): ?>
             <?php $score = $redis->zScore("players:leaderboard", $player) ?>
-            <?php $ready = $redis->lPos("players:ready", $player);
-            if ($ready != null) {
+            <?php $readys = $redis->lRange("players:ready", 0, -1);
+            $ready =
+                // Is player contained in range
+                in_array($player, $readys);
+            if ($ready) {
                 $score = "Prêt ✅";
-            } else {
+            } else if ($score == 0) {
                 $score = "Prêt ❌";
             }
             ?>
@@ -81,7 +84,8 @@ $playersOffset = -$step;
             </div>
         <?php endforeach; ?>
 
-
+        <!-- Countdown -->
+        <h1 id="countdown" class="countdown">3</h1>
     </div>
 
     <script src="assets/scripts/main.js"></script>

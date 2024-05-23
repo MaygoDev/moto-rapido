@@ -8,7 +8,7 @@ from websockets.server import serve
 
 import cache as cache
 
-playerSockets = set()
+playerSockets = {}
 
 def player_join(json_message):
     # Generate secret
@@ -18,6 +18,7 @@ def player_join(json_message):
     if cache.hasSecret(name):
         secret = None
     else:
+        playerSockets[json_message["socket"]] = name
         cache.setSecret(name, secret)
         print(f"WEBSOCKET >> Player {name} claimed secret {secret}")
 
@@ -40,7 +41,7 @@ def ready(json_message):
     name = cache.getNameBySecret(secret)
     if name is not None:
         cache.addReady(name)
-        print(f"WEBSOCKET >> Player {name} is ready.")
+        print(f"GAME >> Player {name} is ready.")
         return json.dumps({"type": "ready", "name": name})
 
     return None
@@ -51,7 +52,7 @@ def forward(json_message):
     name = cache.getNameBySecret(secret)
     if name is not None:
         newScore = cache.addPlayerScore(name, 10) # Add 10 pixels to the player
-        print(f"WEBSOCKET >> Player {name} scored {newScore}")
+        print(f"GAME >> Player {name} scored {newScore}")
         return json.dumps({"type": "forwarded", "name": name, "score": newScore})
 
     return None
@@ -60,20 +61,29 @@ def forward(json_message):
 def checkStart():
     readyPlayers = cache.getReady()
     players = len(cache.getPlayerColors())
-    if readyPlayers == players and players > 1:
-        print("WEBSOCKET >> All players are ready. Starting game.")
+    if readyPlayers == players and players > 0:
+        print("GAME >> All players are ready. Starting game.")
         cache.clearReady()
         return json.dumps({"type": "start"})
+    return None
 
+def checkWin():
+    playerScores = cache.getPlayerScores()
+    for player, score in playerScores:
+        if score >= 2050:
+            print(f"GAME >> Player {player} won the game!")
+            return json.dumps({"type": "win", "name": player})
+    return None
 
 async def message(websocket):
-    playerSockets.add(websocket)
+    playerSockets[websocket] = None
     print(f"WEBSOCKET >> Player {websocket.remote_address} connected.")
     async for message in websocket:
         json_message = json.loads(message)
         print(f"WEBSOCKET >> Recieved message: {json_message} from {websocket.remote_address}")
 
         if json_message["type"] == "join":
+            json_message["socket"] = websocket
             joined = player_join(json_message)
             await websocket.send(json.dumps({"type": "joined", "secret": joined}))
             if joined is not None:
@@ -93,11 +103,20 @@ async def message(websocket):
             forwardMessage = forward(json_message)
             if forwardMessage is not None:
                 await broadcast(forwardMessage)
-    playerSockets.remove(websocket)
-    print(f"WEBSOCKET >> Player {websocket.remote_address} disconnected.")
+            # MAXIMUM SCORE IS 2050
+            win = checkWin()
+            if win is not None:
+                await broadcast(win)
+
+    nameLeft = playerSockets[websocket]
+    del playerSockets[websocket]
+
+    # Send leave packet to all players
+    await broadcast(json.dumps({"type": "left", "name": nameLeft}))
+    print(f"WEBSOCKET >> Player {websocket.remote_address} ({nameLeft}) disconnected.")
 
 async def broadcast(message):
-    for playerSocket in playerSockets:
+    for playerSocket in playerSockets.keys():
         await playerSocket.send(message)
 
 async def main(message):

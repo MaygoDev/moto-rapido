@@ -90,3 +90,6 @@ fabric.properties
 !.idea/runConfigurations
 
 # End of https://www.toptal.com/developers/gitignore/api/pycharm+all
+
+# Byte-compiled / optimized / DLL files
+__pycache__/

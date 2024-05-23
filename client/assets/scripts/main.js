@@ -13,6 +13,38 @@ const color = document.getElementById("player-"+name)
 connect("ws://172.16.32.154:8765");
 let secret = null; // This secret is used with the server to avoid cheating.
 
+function startCountdown() {
+    let countdown = 3;
+
+    const countdownElement = document.getElementById("countdown");
+    countdownElement.style.display = "block";
+
+    const countdownInterval = setInterval(function() {
+        countdown--;
+        countdownElement.innerText = countdown;
+
+        switch (countdown) {
+            case 2:
+                countdownElement.style.backgroundColor = "orange";
+                break;
+            case 1:
+                countdownElement.style.backgroundColor = "gold";
+                break;
+            case 0:
+                countdownElement.style.backgroundColor = "green";
+                countdownElement.innerText = "GO !!!";
+
+                // Hide countdown after 1 second
+                setTimeout(function() {
+                    countdownElement.style.display = "none";
+                }, 1000);
+                clearInterval(countdownInterval);
+                started = true;
+                break;
+        }
+    }, 1000);
+}
+
 function onMessage(event) {
     console.log("Message received: " + event.data);
     const message = JSON.parse(event.data);
@@ -75,12 +107,27 @@ function onMessage(event) {
 
             break;
         case "start":
-            started = true;
             readyButton.style.display = "none";
+            startCountdown();
             break;
         case "ready":
             playerName = message.name;
             document.getElementById("player-"+playerName).children.namedItem("score").innerText = "Prêt ✔️";
+            break;
+        case "left":
+            playerName = message.name;
+            document.getElementById("player-"+playerName).remove();
+            break;
+        case "win":
+            playerName = message.name;
+
+            const countdownElement = document.getElementById("countdown");
+            countdownElement.style.display = "block";
+            countdownElement.style.backgroundColor = "gold";
+            countdownElement.innerText = playerName + " a gagné ! 🏆";
+
+            started = false;
+
             break;
     }
 }
