@@ -72,7 +72,8 @@ function onMessage(event) {
             const lastOffset = document.getElementById("game").lastElementChild.style.top;
             const newOffset = parseInt(lastOffset.substring(0, lastOffset.length - 2)) + 200;
 
-            playerBox.style="top: "+newOffset+"px; left: 0px;"; // 0px because just joined
+            playerBox.style.top = newOffset+"px";
+            playerBox.style.left = "0px"; // 0px because just joined
 
             playerMoto = document.createElement("img");
             playerMoto.id = "player-moto";

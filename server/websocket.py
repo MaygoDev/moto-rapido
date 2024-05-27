@@ -61,7 +61,7 @@ def forward(json_message):
 def checkStart():
     readyPlayers = cache.getReady()
     players = len(cache.getPlayerColors())
-    if readyPlayers == players and players > 0:
+    if readyPlayers == players and players > 1:
         print("GAME >> All players are ready. Starting game.")
         cache.clearReady()
         return json.dumps({"type": "start"})

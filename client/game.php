@@ -70,6 +70,7 @@ $playersOffset = -$step;
             $ready =
                 // Is player contained in range
                 in_array($player, $readys);
+            $left = $score;
             if ($ready) {
                 $score = "Prêt ✅";
             } else if ($score == 0) {
@@ -77,7 +78,7 @@ $playersOffset = -$step;
             }
             ?>
             <div class="text-center moto" id="player-<?= $player ?>"
-                 style="top: <?= $playersOffset += $step; ?>px; left: <?= $score ?>px;">
+                 style="top: <?= $playersOffset += $step; ?>px; left: <?= $left ?>px;">
                 <h3 id="player-name"><?= $player ?></h3>
                 <img id="player-moto" src="assets/img/motos/<?= $color ?>.png" alt="Moto <?= $color ?>" width="90px">
                 <p id="score"><?= $score ?></p>
