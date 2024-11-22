@@ -5,7 +5,7 @@ session_start();
 $name = $_SESSION['name'];
 if (isset($name)) {
     $redis = new Redis();
-    $redis->connect('localhost');
+    $redis->connect('redis');
 
     $redis->hDel("players", $name);
     $redis->zRem('players:leaderboard', $name);

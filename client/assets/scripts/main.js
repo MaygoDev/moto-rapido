@@ -10,7 +10,7 @@ const color = document.getElementById("player-"+name)
     .alt
     .replace("Moto ", "");
 
-connect("ws://172.16.32.154:8765");
+connect("ws://localhost:8765");
 let secret = null; // This secret is used with the server to avoid cheating.
 
 function startCountdown() {

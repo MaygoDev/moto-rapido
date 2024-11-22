@@ -8,7 +8,7 @@ if (!isset($_SESSION['name'])) {
 }
 
 $redis = new Redis();
-$redis->connect('localhost');
+$redis->connect('redis');
 
 //echo "<h1>Bienvenue " . $_SESSION['name'] . "</h1>";
 //echo "<p>Vous êtes connecté.</p>";

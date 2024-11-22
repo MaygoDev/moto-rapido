@@ -6,7 +6,7 @@ r = None
 
 def connect():
     global r
-    r = redis.Redis(host='localhost', port=6379, decode_responses=True)
+    r = redis.Redis(host='redis', port=6379)
     if r.ping():
         print("REDIS>> Connected.")
 
@@ -54,8 +54,8 @@ def setSecret(name, secret):
 
 def getNameBySecret(secret):
     for name, playerSecret in r.hgetall('secrets').items():
-        if playerSecret == secret:
-            return name
+        if playerSecret.decode('utf-8') == secret:
+            return name.decode('utf-8')
     return None
 
 

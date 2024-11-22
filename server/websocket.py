@@ -61,7 +61,7 @@ def forward(json_message):
 def checkStart():
     readyPlayers = cache.getReady()
     players = len(cache.getPlayerColors())
-    if readyPlayers == players and players > 1:
+    if readyPlayers == players and players >= 1:
         print("GAME >> All players are ready. Starting game.")
         cache.clearReady()
         return json.dumps({"type": "start"})
@@ -72,7 +72,7 @@ def checkWin():
     for player, score in playerScores:
         if score >= 2050:
             print(f"GAME >> Player {player} won the game!")
-            return json.dumps({"type": "win", "name": player})
+            return json.dumps({"type": "win", "name": player.decode('utf-8')})
     return None
 
 async def message(websocket):

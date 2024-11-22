@@ -1,0 +1,21 @@
+services:
+
+  client:
+    build:
+      context: client
+    ports:
+      - 80:80
+    depends_on:
+      - redis
+
+  redis:
+    image: redis
+
+  server:
+    build:
+      context: server
+    depends_on:
+      - redis
+    ports:
+      - 8765:8765
+      

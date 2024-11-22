@@ -11,7 +11,7 @@ if (isset($_POST['name'])) {
     $name = htmlspecialchars($_POST['name']);
 
     $redis = new Redis();
-    $redis->connect('localhost');
+    $redis->connect('redis');
 
     if ($redis->hLen("players") >= $redis->lLen("colors")) {
         // The game is full
