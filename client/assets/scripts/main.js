@@ -69,7 +69,7 @@ function onMessage(event) {
             playerBox.id = "player-"+playerName;
             playerBox.className = "text-center moto";
 
-            const lastOffset = document.getElementById("game").lastElementChild.style.top;
+            const lastOffset = document.getElementById("game").children[document.getElementById("game").children.length - 2].style.top;
             const newOffset = parseInt(lastOffset.substring(0, lastOffset.length - 2)) + 200;
 
             playerBox.style.top = newOffset+"px";
